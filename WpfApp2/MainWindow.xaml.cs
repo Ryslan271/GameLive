@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 using WpfApp2.GameElements;
+using System.Windows.Threading;
 
 namespace WpfApp2
 {
@@ -37,44 +33,54 @@ namespace WpfApp2
         private void Window_ContentRendered(object sender, EventArgs e)
         {
             DrawGameArea();
-
-            DrawEssences();
-
         }
 
-        private void GamePlay()
+        //(x.X + SnakeSquareSize == cell.X &&
+        //                x.Y + SnakeSquareSize == cell.Y &&
+        //                x.IsLive == true) ||
+        //                (x.X - SnakeSquareSize == cell.X &&
+        //                x.Y - SnakeSquareSize == cell.Y &&
+        //                x.IsLive == true) ||
+        //                (x.X + SnakeSquareSize == cell.X &&
+        //                x.Y - SnakeSquareSize == cell.Y &&
+        //                x.IsLive == true) ||
+        //                (x.X - SnakeSquareSize == cell.X &&
+        //                x.Y + SnakeSquareSize == cell.Y &&
+        //                x.IsLive == true)
+
+        private void timer_Tick(object sender, EventArgs e)
         {
             NewCells = new List<Cell>();
 
             foreach (Cell cell in Cells)
             {
-                int countCell = Cells.Where(x =>
-                        (cell.X + SnakeSquareSize == x.X &&
-                        cell.Y == x.Y &&
+                int countCell = Cells.Count(x =>
+                        (x.X + SnakeSquareSize == cell.X &&
+                        x.Y == cell.Y &&
                         x.IsLive == true) ||
-                        (cell.X == x.X &&
-                        cell.Y - SnakeSquareSize == x.Y &&
+                        (x.X == cell.X &&
+                        x.Y - SnakeSquareSize == cell.Y &&
                         x.IsLive == true) ||
-                        (cell.X - SnakeSquareSize == x.X &&
-                        cell.Y == x.Y &&
+                        (x.X - SnakeSquareSize == cell.X &&
+                        x.Y == cell.Y &&
                         x.IsLive == true) ||
-                        (cell.X == x.X &&
-                        cell.Y + SnakeSquareSize == x.Y &&
+                        (x.X == cell.X &&
+                        x.Y + SnakeSquareSize == cell.Y &&
                         x.IsLive == true) ||
-                        (cell.X + SnakeSquareSize == x.X &&
-                        cell.Y + SnakeSquareSize == x.Y &&
+                        (x.X + SnakeSquareSize == cell.X &&
+                        x.Y + SnakeSquareSize == cell.Y &&
                         x.IsLive == true) ||
-                        (cell.X - SnakeSquareSize == x.X &&
-                        cell.Y - SnakeSquareSize == x.Y &&
+                        (x.X - SnakeSquareSize == cell.X &&
+                        x.Y - SnakeSquareSize == cell.Y &&
                         x.IsLive == true) ||
-                        (cell.X + SnakeSquareSize == x.X &&
-                        cell.Y - SnakeSquareSize == x.Y &&
+                        (x.X + SnakeSquareSize == cell.X &&
+                        x.Y - SnakeSquareSize == cell.Y &&
                         x.IsLive == true) ||
-                        (cell.X - SnakeSquareSize == x.X &&
-                        cell.Y + SnakeSquareSize == x.Y &&
-                        x.IsLive == true)).Count();
+                        (x.X - SnakeSquareSize == cell.X &&
+                        x.Y + SnakeSquareSize == cell.Y &&
+                        x.IsLive == true));
 
-                if (countCell == 3 || countCell == 2)
+                if (countCell == 2)
                 {
                     cell.IsLive = true;
                 }
@@ -147,33 +153,32 @@ namespace WpfApp2
             }
         }
 
-        private void DrawEssences()
+        private void DrawEssences(int X, int Y)
         {
-            int countEssences = 20;
 
-            while (countEssences >= 0)
+
+            Cell essence = Cells.FirstOrDefault(x => x.X - 20 <= X && x.X >= X &&
+                                                x.Y - 20 <= Y && x.Y >= Y);
+            if (essence == null) return;
+
+            Cell essenceNew = new Cell()
             {
-                Cell essence = new Cell()
+                X = essence.X - 20,
+                Y = essence.Y - 20,
+                IsLive = true,
+                UiElement = new Rectangle
                 {
-                    Y = rnd.Next(1, 20) * 20,
-                    X = rnd.Next(1, 20) * 20,
-                    IsLive = true,
-                    UiElement = new Rectangle
-                    {
-                        Width = 20,
-                        Height = 20,
-                        Fill = Brushes.Black,
-                        StrokeThickness = 0.5,
-                        Stroke = Brushes.Black
-                    }
-                };
+                    Width = 20,
+                    Height = 20,
+                    Fill = Brushes.Black,
+                    StrokeThickness = 0.5,
+                    Stroke = Brushes.Black
+                }
+            };
 
-                AddCellInGameArea(essence);
+            AddCellInGameArea(essenceNew);
 
-                Cells.Add(essence);
-
-                countEssences--;
-            }
+            Cells.Add(essenceNew);
         }
 
         private void AddCellInGameArea(Cell essence)
@@ -185,9 +190,25 @@ namespace WpfApp2
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Space)
-                GamePlay();
+            DispatcherTimer timer = new DispatcherTimer();
+            timer.Tick += new EventHandler(timer_Tick);
+            timer.Interval = new TimeSpan(0, 0, 0, 0, 120);
 
+            if (e.Key == Key.Tab)
+            {
+                timer.Stop();
+            }
+
+            if (e.Key == Key.Space)
+            {
+                timer.Start();
+            }
+            
+        }
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            DrawEssences(Convert.ToInt32(e.GetPosition(GameArea).X), Convert.ToInt32(e.GetPosition(GameArea).Y));
         }
     }
 }

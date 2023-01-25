@@ -6,19 +6,19 @@
         xmlns:local="clr-namespace:WpfApp2"
         mc:Ignorable="d"
         Title="MainWindow"
-        Height="450"
-        Width="450"
+        Height="650"
+        Width="650"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
-        ContentRendered="Window_ContentRendered" KeyDown="Window_KeyDown">
+        ContentRendered="Window_ContentRendered" KeyDown="Window_KeyDown" MouseDown="Window_MouseDown">
     <Grid>
         <Border BorderBrush="Black"
                 BorderThickness="4"
-                Width="406"
-                Height="406">
+                Width="606"
+                Height="606">
             <Canvas Name="GameArea"
                     ClipToBounds="True"
-                    Width="400"
-                    Height="400"/>
+                    Width="600"
+                    Height="600"/>
         </Border>
     </Grid>
 </Window>
