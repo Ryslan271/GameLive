@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WpfApp2.GameElements;
 
 namespace WpfApp2
 {
@@ -21,6 +23,9 @@ namespace WpfApp2
     public partial class MainWindow : Window
     {
         private const int SnakeSquareSize = 20;
+
+        private List<Cell> Cells = new List<Cell>();
+        private List<Cell> NewCells = new List<Cell>();
 
         private Random rnd = new Random();
 
@@ -34,6 +39,78 @@ namespace WpfApp2
             DrawGameArea();
 
             DrawEssences();
+
+        }
+
+        private void GamePlay()
+        {
+            NewCells = new List<Cell>();
+
+            foreach (Cell cell in Cells)
+            {
+                int countCell = Cells.Where(x =>
+                        (cell.X + SnakeSquareSize == x.X &&
+                        cell.Y == x.Y &&
+                        x.IsLive == true) ||
+                        (cell.X == x.X &&
+                        cell.Y - SnakeSquareSize == x.Y &&
+                        x.IsLive == true) ||
+                        (cell.X - SnakeSquareSize == x.X &&
+                        cell.Y == x.Y &&
+                        x.IsLive == true) ||
+                        (cell.X == x.X &&
+                        cell.Y + SnakeSquareSize == x.Y &&
+                        x.IsLive == true) ||
+                        (cell.X + SnakeSquareSize == x.X &&
+                        cell.Y + SnakeSquareSize == x.Y &&
+                        x.IsLive == true) ||
+                        (cell.X - SnakeSquareSize == x.X &&
+                        cell.Y - SnakeSquareSize == x.Y &&
+                        x.IsLive == true) ||
+                        (cell.X + SnakeSquareSize == x.X &&
+                        cell.Y - SnakeSquareSize == x.Y &&
+                        x.IsLive == true) ||
+                        (cell.X - SnakeSquareSize == x.X &&
+                        cell.Y + SnakeSquareSize == x.Y &&
+                        x.IsLive == true)).Count();
+
+                if (countCell == 3 || countCell == 2)
+                {
+                    cell.IsLive = true;
+                }
+                else
+                {
+                    cell.IsLive = false;
+                }
+
+                GameArea.Children.Remove(cell.UiElement);
+
+                if (cell.IsLive == true)
+                    cell.UiElement = new Rectangle
+                    {
+                        Width = 20,
+                        Height = 20,
+                        Fill = Brushes.Black,
+                        StrokeThickness = 0.5,
+                        Stroke = Brushes.Black
+                    };
+                else
+                    cell.UiElement = new Rectangle
+                    {
+                        Width = 20,
+                        Height = 20,
+                        Fill = Brushes.White,
+                        StrokeThickness = 0.5,
+                        Stroke = Brushes.Black
+                    };
+
+                NewCells.Add(cell);
+            }
+
+            foreach (Cell item in NewCells)
+            {
+                AddCellInGameArea(item);
+            }
         }
 
         private void DrawGameArea()
@@ -45,18 +122,15 @@ namespace WpfApp2
 
             while (doneDrawingBackground == false)
             {
-                Rectangle rect = new Rectangle
+                Cell essence = new Cell()
                 {
-                    Width = SnakeSquareSize,
-                    Height = SnakeSquareSize,
-                    Fill = Brushes.White,
-                    StrokeThickness = 0.5,
-                    Stroke = Brushes.Black
+                    Y = nextY,
+                    X = nextX
                 };
 
-                GameArea.Children.Add(rect);
-                Canvas.SetTop(rect, nextY);
-                Canvas.SetLeft(rect, nextX);
+                AddCellInGameArea(essence);
+
+                Cells.Add(essence);
 
                 nextIsOdd = !nextIsOdd;
                 nextX += SnakeSquareSize;
@@ -75,25 +149,44 @@ namespace WpfApp2
 
         private void DrawEssences()
         {
-            int countEssences = rnd.Next(20, 25);
+            int countEssences = 20;
 
             while (countEssences >= 0)
             {
-                GameElements.Cell essence = new GameElements.Cell()
+                Cell essence = new Cell()
                 {
                     Y = rnd.Next(1, 20) * 20,
-                    X = rnd.Next(1, 20) * 20
+                    X = rnd.Next(1, 20) * 20,
+                    IsLive = true,
+                    UiElement = new Rectangle
+                    {
+                        Width = 20,
+                        Height = 20,
+                        Fill = Brushes.Black,
+                        StrokeThickness = 0.5,
+                        Stroke = Brushes.Black
+                    }
                 };
 
-                GameArea.Children.Add(essence.UiElement);
-                Canvas.SetTop(essence.UiElement, essence.Y);
-                Canvas.SetLeft(essence.UiElement, essence.X);
+                AddCellInGameArea(essence);
+
+                Cells.Add(essence);
+
                 countEssences--;
             }
         }
 
+        private void AddCellInGameArea(Cell essence)
+        {
+            GameArea.Children.Add(essence.UiElement);
+            Canvas.SetTop(essence.UiElement, essence.Y);
+            Canvas.SetLeft(essence.UiElement, essence.X);
+        }
+
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Key == Key.Space)
+                GamePlay();
 
         }
     }

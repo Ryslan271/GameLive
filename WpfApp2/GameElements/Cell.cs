@@ -10,16 +10,16 @@ namespace WpfApp2.GameElements
         {
             Width = 20,
             Height = 20,
-            Fill = Brushes.Black,
+            Fill = Brushes.White,
             StrokeThickness = 0.5,
             Stroke = Brushes.Black
         };
 
-        public bool IsLive { get; set; } = true;
+        public bool IsLive { get; set; } = false;
 
         public int X { get; set; }
         public int Y { get; set; }
 
-        public int NumberNearbyLiving { get; set; }
+        public Cell[] CellNearbyLiving { get; set; }
     }
 }
