@@ -54,39 +54,43 @@ namespace WpfApp2
 
             foreach (Cell cell in Cells)
             {
-                int countCell = Cells.Count(x =>
-                        (x.X + SnakeSquareSize == cell.X &&
-                        x.Y == cell.Y &&
+                List<Cell> NewCellCells = Cells.Where(x =>
+                        (cell.X + SnakeSquareSize == x.X &&
+                        cell.Y == x.Y &&
                         x.IsLive == true) ||
-                        (x.X == cell.X &&
-                        x.Y - SnakeSquareSize == cell.Y &&
+                        (cell.X == x.X &&
+                        cell.Y - SnakeSquareSize == x.Y &&
                         x.IsLive == true) ||
-                        (x.X - SnakeSquareSize == cell.X &&
-                        x.Y == cell.Y &&
+                        (cell.X - SnakeSquareSize == x.X &&
+                        cell.Y == x.Y &&
                         x.IsLive == true) ||
-                        (x.X == cell.X &&
-                        x.Y + SnakeSquareSize == cell.Y &&
+                        (cell.X == x.X &&
+                        cell.Y + SnakeSquareSize == x.Y &&
                         x.IsLive == true) ||
-                        (x.X + SnakeSquareSize == cell.X &&
-                        x.Y + SnakeSquareSize == cell.Y &&
+                        (cell.X + SnakeSquareSize == x.X &&
+                        cell.Y + SnakeSquareSize == x.Y &&
                         x.IsLive == true) ||
-                        (x.X - SnakeSquareSize == cell.X &&
-                        x.Y - SnakeSquareSize == cell.Y &&
+                        (cell.X - SnakeSquareSize == x.X &&
+                        cell.Y - SnakeSquareSize == x.Y &&
                         x.IsLive == true) ||
-                        (x.X + SnakeSquareSize == cell.X &&
-                        x.Y - SnakeSquareSize == cell.Y &&
+                        (cell.X + SnakeSquareSize == x.X &&
+                        cell.Y - SnakeSquareSize == x.Y &&
                         x.IsLive == true) ||
-                        (x.X - SnakeSquareSize == cell.X &&
-                        x.Y + SnakeSquareSize == cell.Y &&
-                        x.IsLive == true));
+                        (cell.X - SnakeSquareSize == x.X &&
+                        cell.Y + SnakeSquareSize == x.Y &&
+                        x.IsLive == true)).ToList();
 
-                if (countCell == 2)
+                if (1 == 3 && cell.IsLive == false)
                 {
                     cell.IsLive = true;
                 }
-                else
+                else if (1 < 2 || 1 > 3)
                 {
                     cell.IsLive = false;
+                }
+                else if (cell.IsLive == true && (1 == 2 || 1 == 3))
+                {
+                    cell.IsLive = true;
                 }
 
                 GameArea.Children.Remove(cell.UiElement);
